@@ -4,6 +4,6 @@ exports.config = void 0;
 exports.config = [
     {
         name: '微信小程序',
-        repo: 'template/wxapp'
+        repo: 'wxapp'
     }
 ];

@@ -35,25 +35,30 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var config_1 = require("../config");
 var utils_1 = require("../utils");
-var path = require('path');
-var inquirer = require('inquirer');
-var chalk = require('chalk');
+var path_1 = __importDefault(require("path"));
+var inquirer_1 = __importDefault(require("inquirer"));
+var chalk_1 = __importDefault(require("chalk"));
+var fs_extra_1 = __importDefault(require("fs-extra"));
+var handlebars_1 = __importDefault(require("handlebars"));
 function create(projectName) {
     return __awaiter(this, void 0, void 0, function () {
         function checkProjectName() {
             if (!projectName) {
-                return inquirer
+                return inquirer_1.default
                     .prompt([
                     {
                         type: 'input',
                         name: 'name',
-                        message: chalk.green('请输入项目名称'),
+                        message: chalk_1.default.green('请输入项目名称'),
                         validate: function (name) {
                             if (!name.trim()) {
-                                return chalk.red('目录名称不合法, 请重新输入');
+                                return chalk_1.default.red('目录名称不合法, 请重新输入');
                             }
                             return true;
                         }
@@ -66,35 +71,34 @@ function create(projectName) {
             return Promise.resolve();
         }
         function chooseTemplate() {
-            return inquirer
+            return inquirer_1.default
                 .prompt([
                 {
                     type: 'list',
                     name: 'name',
-                    message: chalk.green('请选择模板'),
+                    message: chalk_1.default.green('请选择模板'),
                     choices: config_1.config.map(function (_) { return _.name; })
                 }
             ])
                 .then(function (answer) {
                 templateName = answer.name;
-                console.log('templateName', templateName);
             });
         }
         function checkDir() {
-            var projectPath = path.resolve(projectName);
+            var projectPath = path_1.default.resolve(projectName);
             if (utils_1.isDirExists(projectPath)) {
-                inquirer
+                inquirer_1.default
                     .prompt([
                     {
                         type: 'input',
                         name: 'name',
-                        message: chalk.green('当前路径下已存在同名目录，请重新输入目录名称'),
+                        message: chalk_1.default.green('当前路径下已存在同名目录，请重新输入目录名称'),
                         validate: function (name) {
                             if (!name.trim()) {
-                                return chalk.red('目录名称不合法, 请重新输入');
+                                return chalk_1.default.red('目录名称不合法, 请重新输入');
                             }
-                            if (utils_1.isDirExists(path.resolve(name))) {
-                                return chalk.red('当前路径下已存在同名目录，请重新输入目录名称');
+                            if (utils_1.isDirExists(path_1.default.resolve(name))) {
+                                return chalk_1.default.red('当前路径下已存在同名目录，请重新输入目录名称');
                             }
                             else {
                                 return true;
@@ -103,7 +107,8 @@ function create(projectName) {
                     }
                 ])
                     .then(function (answer) {
-                    return mkProject(path.resolve(answer.name), templateName);
+                    projectName = answer.name;
+                    return mkProject(path_1.default.resolve(answer.name), templateName);
                 });
             }
             else {
@@ -111,6 +116,16 @@ function create(projectName) {
             }
         }
         function mkProject(projectPath, templateName) {
+            console.log(chalk_1.default.green('⌛️ 项目构建中...\n'));
+            var repo = config_1.config.find(function (item) { return item.name === templateName; }).repo;
+            fs_extra_1.default.copySync(path_1.default.resolve(__dirname, "../../template/" + repo), projectPath);
+            var content = fs_extra_1.default.readFileSync(projectPath + "/package.json", 'utf-8');
+            fs_extra_1.default.writeFileSync(projectPath + "/package.json", handlebars_1.default.compile(content)({ projectName: projectName }));
+            console.log(chalk_1.default.green('✅ 项目构建完成\n'));
+            console.log(chalk_1.default.green('执行以下命令以启动项目:\n'));
+            console.log(chalk_1.default.green("\t cd " + projectName + "\n"));
+            console.log(chalk_1.default.green("\t npm install\n"));
+            console.log(chalk_1.default.green("\t \u5FAE\u4FE1\u5F00\u53D1\u8005\u5DE5\u5177: \u5DE5\u5177 - \u6784\u5EFAnpm\n"));
         }
         var templateName;
         return __generator(this, function (_a) {

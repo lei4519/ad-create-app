@@ -1,9 +1,10 @@
 import { config } from "../config"
 import { isDirExists } from "../utils"
-
-const path = require('path')
-const inquirer = require('inquirer')
-const chalk = require('chalk')
+import path from 'path'
+import inquirer from 'inquirer'
+import chalk from 'chalk'
+import fsExtra from 'fs-extra'
+import Handlebars from 'handlebars'
 
 export default async function create (projectName?: string) {
   let templateName: string
@@ -45,11 +46,10 @@ export default async function create (projectName?: string) {
       ])
       .then((answer: any) => {
         templateName = answer.name
-        console.log('templateName', templateName)
       })
   }
   function checkDir () {
-    const projectPath = path.resolve(projectName)
+    const projectPath = path.resolve(projectName!)
     if (isDirExists(projectPath)) {
       inquirer
         .prompt([
@@ -70,6 +70,7 @@ export default async function create (projectName?: string) {
           }
         ])
         .then((answer: any) => {
+          projectName = answer.name
           return mkProject(path.resolve(answer.name), templateName)
         })
     } else {
@@ -77,8 +78,15 @@ export default async function create (projectName?: string) {
     }
   }
   function mkProject(projectPath: string, templateName: string) {
-
-
+    console.log(chalk.green('⌛️ 项目构建中...\n'))
+    const { repo } = config.find(item => item.name === templateName)!
+    fsExtra.copySync(path.resolve(__dirname, `../../template/${repo}`), projectPath)
+    const content = fsExtra.readFileSync(`${projectPath}/package.json`, 'utf-8')
+    fsExtra.writeFileSync(`${projectPath}/package.json`, Handlebars.compile(content)({projectName}))
+    console.log(chalk.green('✅ 项目构建完成\n'))
+    console.log(chalk.green('执行以下命令以启动项目:\n'))
+    console.log(chalk.green(`\t cd ${projectName}\n`))
+    console.log(chalk.green(`\t npm install\n`))
+    console.log(chalk.green(`\t 微信开发者工具: 工具 - 构建npm\n`))
   }
 }
-

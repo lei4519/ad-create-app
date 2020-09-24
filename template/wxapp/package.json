@@ -1,0 +1,42 @@
+{
+  "name": "{{ projectName }}",
+  "version": "1.0.0",
+  "description": "小程序框架模版",
+  "main": "app.js",
+  "scripts": {
+    "sass2wxss": "npx gulp sass2wxss"
+  },
+  "keywords": [],
+  "author": "lei4519",
+  "license": "ISC",
+  "dependencies": {
+    "enhance-wxapp": "git+https://gitlab.leju.com/adjs-ljl/enhance-wxapp.git",
+    "miniprogram-api-promise": "^1.0.4"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^11.0.0",
+    "@commitlint/config-conventional": "^11.0.0",
+    "eslint": "^7.9.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "gulp": "^4.0.2",
+    "gulp-clean-css": "^4.3.0",
+    "gulp-postcss": "^8.0.0",
+    "gulp-rename": "^2.0.0",
+    "gulp-replace": "^1.0.0",
+    "gulp-sass": "^4.1.0",
+    "husky": "^4.3.0",
+    "lint-staged": "^10.4.0",
+    "postcss-px2rpx": "^0.0.4",
+    "prettier": "^2.1.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged --no-stash",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,txs,ts,vue}": "eslint --fix"
+  }
+}

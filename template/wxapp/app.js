@@ -8,5 +8,6 @@ import globalData from './modules/app.ext/app.config.data'
 import { Eapp } from 'enhance-wxapp'
 
 Eapp({
+  onLaunch() {},
   globalData
 })

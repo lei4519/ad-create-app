@@ -1,14 +1,14 @@
-export default ((service) => {
+export default service => {
   let hosts = {
     xcx: 'https://xcx.leju.com',
     src: 'https://src.leju.com'
-  };
-  let isTest = false;
+  }
+  let isTest = false
   if (service === 'development') {
-    hosts.xcx = 'https://xcxbch.leju.com';
+    hosts.xcx = 'https://xcxbch.leju.com'
   }
   if (service === 'development') {
-    isTest = true;
+    isTest = true
   }
   return {
     // im聊天的传值
@@ -20,7 +20,7 @@ export default ((service) => {
     //换取weixin_token
     get_weixin_token: hosts.xcx + '/api/login/jscode2session',
     // 判断token是否过期
-    check_weixin_token: hosts.xcx + "/api/login/check_login",
+    check_weixin_token: hosts.xcx + '/api/login/check_login',
     //保存|更新小程序用户授权信息
     save_weixin_user: hosts.xcx + '/api/user/save_oauth_info',
     //手机号授权|解密
@@ -72,25 +72,25 @@ export default ((service) => {
     //获取卡券适用楼盘
     cityChange: hosts.xcx + '/api/card/city_change',
     // 创建订单接口
-    createOrder: hosts.xcx + "/api/card/create_order",
+    createOrder: hosts.xcx + '/api/card/create_order',
     // 获取小程序支付参数
-    getPayData: hosts.xcx + "/api/card/get_pay_data",
+    getPayData: hosts.xcx + '/api/card/get_pay_data',
     // 支付用户信息收集
-    userInfoCollect: hosts.xcx + "/api/card/user_info_collect",
+    userInfoCollect: hosts.xcx + '/api/card/user_info_collect',
     // 订单信息
-    orderInfo: hosts.xcx + "/api/card/order_info",
+    orderInfo: hosts.xcx + '/api/card/order_info',
     // 退款
-    applyRefund: hosts.xcx + "/api/myhome/apply_refund",
+    applyRefund: hosts.xcx + '/api/myhome/apply_refund',
     // 取消订单
-    cancleOrder: hosts.xcx + "/api/myhome/cancel_order",
+    cancleOrder: hosts.xcx + '/api/myhome/cancel_order',
     // 获取订单列表
-    getOrderList: hosts.xcx + "/api/myhome/get_all_order_info",
+    getOrderList: hosts.xcx + '/api/myhome/get_all_order_info',
     // 获取退款详情
-    getRefundDetail: hosts.xcx + "/api/myhome/get_refund_detail",
+    getRefundDetail: hosts.xcx + '/api/myhome/get_refund_detail',
     // 获取卡包列表
-    getCardList: hosts.xcx + "/api/myhome/get_all_info",
+    getCardList: hosts.xcx + '/api/myhome/get_all_info',
     // 获取已购买心愿券信息
-    getQuanDetail: hosts.xcx + "/api/card/quan_detail",
+    getQuanDetail: hosts.xcx + '/api/card/quan_detail',
     // 获取我的订阅
     getMySubscribeList: hosts.xcx + '/api/myhome/look_at_subscription',
     // 取消订阅
@@ -120,23 +120,25 @@ export default ((service) => {
     // 码上专车约车按钮点击发送模板消息
     send_code_car: hosts.xcx + '/api/send_message/send_code_car',
     // 记录小程序用户浏览小程序的最新时间（小程序需要用户召回时使用 -- 记录用户访问小程序的最新时间）
-    update_user_browsing_time: hosts.xcx + '/api/send_message/update_user_browsing_time',
+    update_user_browsing_time:
+      hosts.xcx + '/api/send_message/update_user_browsing_time',
     // 获取户型点评
     get_house_type_comment: hosts.xcx + '/api/house/get_house_type_comment',
     // 获取户型所属楼盘
     get_house_type_info: hosts.xcx + '/api/brand_house/get_house_type_info',
     // 获取楼盘其他户型
-    get_house_type_other_info: hosts.xcx + '/api/brand_house/get_house_type_other_info',
+    get_house_type_other_info:
+      hosts.xcx + '/api/brand_house/get_house_type_other_info',
     // 查看单个楼盘是否订阅
     get_house_subscribe: hosts.xcx + '/api/myhome/get_house_subscribe',
     // 取消楼盘订阅
     cancelnotice_type: hosts.xcx + '/api/myhome/cancelnotice_type',
 
     //user_view_latest
-    floatImService: hosts.xcx + "/api/house/get_house_im_service",
+    floatImService: hosts.xcx + '/api/house/get_house_im_service',
     //访问顾问，保存记录，返回访问列表
-    guwen_view_list: hosts.xcx + "/api/xiaob/guwen_view_list",
-    user_view_latest: hosts.xcx + "/api/xiaob/user_view_latest",
+    guwen_view_list: hosts.xcx + '/api/xiaob/guwen_view_list',
+    user_view_latest: hosts.xcx + '/api/xiaob/user_view_latest',
     // 来客置业顾问详情接口
     get_adviser_info: hosts.xcx + '/api/adviser/get_adviser_info',
     // get_adviser_info: hosts.laike + '/miniprogram/zygw/get_adviser_info',
@@ -147,7 +149,6 @@ export default ((service) => {
 
     //v2.3 楼盘详情 新闻列表 分页 v2.3模板需求V2.3（商业内容分发）
     get_news: hosts.xcx + '/api/brand_house/get_news',
-
 
     // 红包活动接口
     getRedPackData: hosts.xcx + '/api/cash_coupon/get_activity_info',
@@ -196,6 +197,6 @@ export default ((service) => {
     // 按钮点击埋点
     reportData: hosts.xcx + '/api/analysis/report_data',
     // 城市维度pv、uv数据
-    city_add_pv_data: hosts.xcx + '/api/cloud_shop/add_pv_data',
-  };
-});
+    city_add_pv_data: hosts.xcx + '/api/cloud_shop/add_pv_data'
+  }
+}

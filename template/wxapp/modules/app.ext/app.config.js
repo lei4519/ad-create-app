@@ -82,7 +82,7 @@ let config = {
   request_ucenter_token: true,
 
   // 自动携带scene参数
-  request_scene: false,
+  request_scene: false
 }
 
 if (!config.is_open3rd) {

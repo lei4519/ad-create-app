@@ -1,2 +1,4 @@
-<!--index.wxml-->
-<view class="container"></view>
+<view>
+  <view>{{count}}</view>
+  <button bindtap="add">数字 +1</button>
+</view>

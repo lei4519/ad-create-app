@@ -1,0 +1,30 @@
+{
+  "name": "ad-create-app",
+  "version": "1.0.0",
+  "description": "ad-create-app cli",
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.leju.com:adjs-ljl/ad-create-app.git"
+  },
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "rm -rf ./dist && tsc"
+  },
+  "keywords": [
+    "lei4519",
+    "cli"
+  ],
+  "bin": {
+    "ad-create-app": "./dist/bin/app.js"
+  },
+  "author": "lei4519",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "commander": "^6.1.0",
+    "fs-extra": "^9.0.1",
+    "handlebars": "^4.7.6",
+    "inquirer": "^7.3.3",
+    "ora": "^5.1.0"
+  }
+}

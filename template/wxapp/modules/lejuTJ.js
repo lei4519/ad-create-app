@@ -1,6 +1,7 @@
-let pageExt = require('./pageExt.js')
-let wxExt = require('./wxExt.js')
-const c_v = wxExt.storage('version') || '1.4.2'
+import * as pageExt from './pageExt.js'
+import * as localStore from './localStore.js'
+
+const c_v = localStore.storage('version') || '1.0.0'
 const c_model = wx.getSystemInfoSync().model
 let app = getApp()
 
@@ -47,12 +48,12 @@ function createGUID(zid) {
   if (zid) {
     return formatId(zid, 16)
   }
-  let guid = wxExt.storage('TJ_guid')
+  let guid = localStore.storage('TJ_guid')
   if (guid) {
     return guid
   }
   guid = 'fk' + uuid(14, 62)
-  wxExt.storage('TJ_guid', guid)
+  localStore.storage('TJ_guid', guid)
   return guid
 }
 
@@ -105,7 +106,7 @@ export function sendMsgChance(e) {
   if (!e) return
   if (!e.detail) return
   if (!e.detail.formId) return
-  wxExt.request({
+  this.$ajax({
     url: app.globalData.urls.send_msg_chance,
     method: 'post',
     presetRequest: ['wa_code', 'open_id', 'bcode'],

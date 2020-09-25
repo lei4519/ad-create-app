@@ -1,5 +1,6 @@
 import { globalMixins } from 'enhance-wxapp'
-import localStore from './localStore'
+import * as localStore from './localStore'
+import * as wxExt from './wxExt'
 import config from './app.ext/app.config'
 import { sendMsgChance } from './lejuTJ'
 import wxp from './wxPromiseApi'
@@ -71,10 +72,7 @@ globalMixins({
           }
           // 生成接口地址
           if (typeof this.globalData.urls === 'function') {
-            let service = this.globalData.ext
-              ? this.globalData.ext.env.service
-              : config.env_service
-            this.globalData.urls = this.globalData.urls(service)
+            this.globalData.urls = this.globalData.urls(config.env_service)
           }
           // 检测是否过期
           if (this.globalData.user.weixin_code) {
@@ -169,8 +167,7 @@ globalMixins({
      */
     getSetting(params) {
       const fn = params => {
-        wxExt
-          .request({
+        this.$ajax({
             url: this.globalData.urls.get_setting,
             presetRequest: ['wa_code', 'bcode', 'btype'],
             catchResponse: false
@@ -226,7 +223,7 @@ globalMixins({
      */
     setTabBar() {
       if (!this.globalData.setting) return
-      wxExt.request({
+      this.$ajax({
         url: this.globalData.urls.floatImService,
         presetRequest: ['wa_code'],
         data: {
@@ -250,7 +247,7 @@ globalMixins({
     getCity(params) {
       const fn = params => {
         let opts = {}
-        wxExt
+        wxp
           .getLocation({
             type: 'gcj02'
           })
@@ -286,8 +283,7 @@ globalMixins({
           data.location_x = options.latitude
           data.location_y = options.longitude
         }
-        wxExt
-          .request({
+        this.$ajax({
             url: this.globalData.urls.get_city,
             presetRequest: ['wa_code'],
             catchResponse: false,
@@ -317,7 +313,7 @@ globalMixins({
       if (this.globalData.user.weixin_code) {
         const fn = params => {
           // 检测是否过期
-          wxExt
+          wxp
             .checkSession()
             .then(() => {
               // 未过期，weixin_code和weixin_token是有效的
@@ -355,7 +351,7 @@ globalMixins({
         return wxPromise(fn)(params)
       } else {
         const fn = params => {
-          wxExt
+          wxp
             .login()
             .then(res => {
               if (res.code) {
@@ -385,8 +381,7 @@ globalMixins({
           clear: true,
           ...options
         }
-        wxExt
-          .request({
+        this.$ajax({
             url: this.globalData.urls.check_weixin_token,
             type: 'GET',
             catchResponse: false
@@ -409,8 +404,7 @@ globalMixins({
      */
     getWeixinToken(params) {
       const fn = params => {
-        wxExt
-          .request({
+        this.$ajax({
             url: this.globalData.urls.get_weixin_token,
             presetRequest: ['wa_code'],
             catchResponse: false,
@@ -481,7 +475,7 @@ globalMixins({
         this.weixinLogin()
           .then(res => {
             // 微信接口 授权过一次不用再弹窗
-            wxExt
+            wxp
               .getUserInfo({
                 withCredentials: true
               })
@@ -527,7 +521,7 @@ globalMixins({
         if (detail.errMsg === 'getUserInfo:ok') {
           // this.globalData.user.weixin = detail;
           //保存/更新小程序用户授权信息
-          wxExt.request({
+          this.$ajax({
             url: this.globalData.urls.save_weixin_user,
             presetRequest: ['wa_code', 'btype', 'bcode', 'scene'],
             catchResponse: false,
@@ -617,8 +611,7 @@ globalMixins({
         let detail = options.detail
         if (detail.errMsg === 'getPhoneNumber:ok') {
           // 解密
-          wxExt
-            .request({
+          this.$ajax({
               url: this.globalData.urls.get_weixin_phone,
               method: 'POST',
               presetRequest: ['wa_code', 'bcode', 'btype'],
@@ -635,7 +628,7 @@ globalMixins({
                 this.globalData.user.phone = res.data.entry
                 // 没有个人中心的项目建立uid关联
                 if (config.bind_uid_mobile) {
-                  wxExt.request({
+                  this.$ajax({
                     url: this.globalData.urls.bind_uid_mobile,
                     presetRequest: ['bcode', 'btype'],
                     catchResponse: false,
@@ -692,18 +685,6 @@ globalMixins({
      * 乐居会员中心登录
      * 建议根据业务重写
      */
-    //  ucenterLogin(params) {
-    //     const fn = params => {
-    //         if (params.mode === 'redirect') {
-    //             wxExt.redirectTo({
-    //                 url: '/pages/login/login?backUrl=' + encodeURIComponent(params.url)
-    //             });
-    //         }
-    //         params.fail({ msg: "个人中心登录", type: "ucenter", url: params.url, once: params.once });
-    //         params.complete();
-    //     }
-    //     return wxPromise(fn)(params);
-    // }
     ucenterLogin(params) {
       var that = pageExt.getCurrentPage()
       if (that) {
@@ -841,22 +822,15 @@ globalMixins({
             console.log('warn', 'messageLock', params)
           }
           this.globalData.info.messageLock = true
-          // if(type == "phone"){
-          //     wxExt.redirectTo({
-          //         url: `/pages/utils/userauth?msg=${msg}&url=${encodeURIComponent(url)}&type=${type}&once=${once ? 1 : 0}`
-          //         // url: `/pages/utils/message?msg=${msg}&url=${encodeURIComponent(url)}&type=${type}`
-          //     });
-          // }else{
           wxExt.redirectTo({
             // url: `/pages/utils/userauth?msg=${msg}&url=${encodeURIComponent(url)}&type=${type}&once=${once ? 1 : 0}`
             url: `/pages/utils/message?msg=${msg}&url=${encodeURIComponent(
               url
             )}&type=${type}`
           })
-          // }
         }
       } else if (params.mode === 'modal') {
-        wxExt
+        wxp
           .showModal({
             content: msg,
             confirmText: '重试',

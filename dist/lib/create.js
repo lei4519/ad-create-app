@@ -64,8 +64,8 @@ function create(projectName) {
                         }
                     }
                 ])
-                    .then(function (answer) {
-                    projectName = answer.name;
+                    .then(function (res) {
+                    answer.projectName = res.name;
                 });
             }
             return Promise.resolve();
@@ -80,12 +80,23 @@ function create(projectName) {
                     choices: config_1.config.map(function (_) { return _.name; })
                 }
             ])
-                .then(function (answer) {
-                templateName = answer.name;
+                .then(function (res) {
+                answer.templateName = res.name;
+                if (answer.templateName === '微信小程序') {
+                    return inquirer_1.default.prompt([
+                        {
+                            type: 'confirm',
+                            name: 'confirm',
+                            message: chalk_1.default.green('是第三方小程序吗？'),
+                        },
+                    ]).then(function (res) {
+                        answer.isOpen3rd = res.confirm;
+                    });
+                }
             });
         }
         function checkDir() {
-            var projectPath = path_1.default.resolve(projectName);
+            var projectPath = answer.projectPath = path_1.default.resolve(answer.projectName);
             if (utils_1.isDirExists(projectPath)) {
                 inquirer_1.default
                     .prompt([
@@ -106,31 +117,37 @@ function create(projectName) {
                         }
                     }
                 ])
-                    .then(function (answer) {
-                    projectName = answer.name;
-                    return mkProject(path_1.default.resolve(answer.name), templateName);
+                    .then(function (res) {
+                    answer.projectName = res.name;
+                    answer.projectPath = path_1.default.resolve(res.name);
+                    return mkProject(answer);
                 });
             }
             else {
-                return mkProject(projectPath, templateName);
+                return mkProject(answer);
             }
         }
-        function mkProject(projectPath, templateName) {
+        function mkProject(answer) {
+            var projectPath = answer.projectPath, templateName = answer.templateName;
             console.log(chalk_1.default.green('⌛️ 项目构建中...\n'));
             var repo = config_1.config.find(function (item) { return item.name === templateName; }).repo;
             fs_extra_1.default.copySync(path_1.default.resolve(__dirname, "../../template/" + repo), projectPath);
-            var content = fs_extra_1.default.readFileSync(projectPath + "/package.json", 'utf-8');
-            fs_extra_1.default.writeFileSync(projectPath + "/package.json", handlebars_1.default.compile(content)({ projectName: projectName }));
+            editPackageName(answer);
             console.log(chalk_1.default.green('✅ 项目构建完成\n'));
-            console.log(chalk_1.default.green('执行以下命令以启动项目:\n'));
-            console.log(chalk_1.default.green("\t cd " + projectName + "\n"));
-            console.log(chalk_1.default.green("\t npm install\n"));
-            console.log(chalk_1.default.green("\t \u5FAE\u4FE1\u5F00\u53D1\u8005\u5DE5\u5177: \u5DE5\u5177 - \u6784\u5EFAnpm\n"));
+            if (repo === 'wxapp') {
+                wxappCreated(answer);
+            }
         }
-        var templateName;
+        var answer;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, checkProjectName()];
+                case 0:
+                    answer = {
+                        projectName: projectName,
+                        templateName: '',
+                        projectPath: ''
+                    };
+                    return [4 /*yield*/, checkProjectName()];
                 case 1:
                     _a.sent();
                     return [4 /*yield*/, chooseTemplate()];
@@ -145,3 +162,16 @@ function create(projectName) {
     });
 }
 exports.default = create;
+function editPackageName(answer) {
+    var content = fs_extra_1.default.readFileSync(answer.projectPath + "/package.json", 'utf-8');
+    fs_extra_1.default.writeFileSync(answer.projectPath + "/package.json", handlebars_1.default.compile(content)(answer));
+}
+function wxappCreated(answer) {
+    !answer.isOpen3rd && fs_extra_1.default.removeSync(answer.projectPath + "/ext.json");
+    var content = fs_extra_1.default.readFileSync(answer.projectPath + "/modules/app.ext/app.config.js", 'utf-8');
+    fs_extra_1.default.writeFileSync(answer.projectPath + "/modules/app.ext/app.config.js", handlebars_1.default.compile(content)(answer));
+    console.log(chalk_1.default.green('执行以下命令以启动项目:\n'));
+    console.log(chalk_1.default.green("\t cd " + answer.projectName + "\n"));
+    console.log(chalk_1.default.green("\t npm install\n"));
+    console.log(chalk_1.default.green("\t \u5FAE\u4FE1\u5F00\u53D1\u8005\u5DE5\u5177: \u5DE5\u5177 - \u6784\u5EFAnpm\n"));
+}

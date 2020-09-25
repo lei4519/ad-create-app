@@ -1,0 +1,19 @@
+{
+    "extEnable": true,
+    "extAppid": "wx5ad06e061ab9512e",
+    "directCommit": false,
+    "ext": {
+      "extAppid": "wx5ad06e061ab9512e",
+      "app_info": {
+      "btype": "project",
+      "bcode": "prfd66f0ec65c9edd3",
+      "wa_code": "wadaf4336c2898aa50"
+      },
+      "env": {
+      "service": "development",
+      "version": "trial"
+      }
+    },
+    "navigateToMiniProgramAppIdList": [],
+    "debug": false
+  }

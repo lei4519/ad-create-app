@@ -153,13 +153,15 @@ globalMixins({
      * 获取ext.json(sync)
      */
     getExtSync() {
-      if (wx.getExtConfigSync) {
-        let res = wx.getExtConfigSync()
-        this.globalData.ext = res
-        return res
-      } else {
-        // 此处调用checkAuth无效
-        dLog('版本不支持getExtConfigSync')
+      if (config.is_open3rd) {
+        if (wx.getExtConfigSync) {
+          let res = wx.getExtConfigSync()
+          this.globalData.ext = res
+          return res
+        } else {
+          // 此处调用checkAuth无效
+          console.log('版本不支持getExtConfigSync')
+        }
       }
     },
     /**
@@ -538,7 +540,7 @@ globalMixins({
             method: 'POST',
             success: res => {
               if (!res.data.error_code) {
-                dLog('info', '保存用户信息成功')
+                console.log('info', '保存用户信息成功')
                 // 保存到本地
                 this.globalData.user.weixin = detail
                 if (IM.IMplugin.isLogin()) {
@@ -566,7 +568,7 @@ globalMixins({
                 //1首次进入的是普通  2首次进入的名片
                 wx.setStorageSync('first_type', res.data.entry.first_type)
               } else {
-                dLog('warn', res)
+                console.log('warn', res)
                 options.fail(res.data)
               }
             },
@@ -833,10 +835,10 @@ globalMixins({
           once &&
           this.getAuthOnce(url, type)
         ) {
-          dLog('info', '限制1次授权', url, type)
+          console.log('info', '限制1次授权', url, type)
         } else {
           if (this.globalData.info.messageLock) {
-            dLog('warn', 'messageLock', params)
+            console.log('warn', 'messageLock', params)
           }
           this.globalData.info.messageLock = true
           // if(type == "phone"){
@@ -868,7 +870,7 @@ globalMixins({
             }
           })
       } else if (params.mode === 'none') {
-        dLog('info', 'app checkAuth:', {
+        console.log('info', 'app checkAuth:', {
           msg,
           type,
           url,

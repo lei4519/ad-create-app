@@ -7,7 +7,11 @@ import fsExtra from 'fs-extra'
 import Handlebars from 'handlebars'
 
 export default async function create (projectName?: string) {
-  let templateName: string
+  const answer: any = {
+    projectName,
+    templateName: '',
+    projectPath: ''
+  }
   await checkProjectName()
   await chooseTemplate()
   await checkDir()
@@ -28,8 +32,8 @@ export default async function create (projectName?: string) {
             }
           }
         ])
-        .then((answer: any) => {
-          projectName = answer.name
+        .then((res: any) => {
+          answer.projectName = res.name
         })
     }
     return Promise.resolve()
@@ -44,12 +48,23 @@ export default async function create (projectName?: string) {
           choices: config.map((_: any) => _.name)
         }
       ])
-      .then((answer: any) => {
-        templateName = answer.name
+      .then((res: any) => {
+        answer.templateName = res.name
+        if (answer.templateName === '微信小程序') {
+          return inquirer.prompt([
+            {
+              type: 'confirm',
+              name: 'confirm',
+              message: chalk.green('是第三方小程序吗？'),
+            },
+          ]).then((res: any) => {
+            answer.isOpen3rd = res.confirm
+          })
+        }
       })
   }
   function checkDir () {
-    const projectPath = path.resolve(projectName!)
+    const projectPath = answer.projectPath = path.resolve(answer.projectName!)
     if (isDirExists(projectPath)) {
       inquirer
         .prompt([
@@ -69,24 +84,40 @@ export default async function create (projectName?: string) {
             }
           }
         ])
-        .then((answer: any) => {
-          projectName = answer.name
-          return mkProject(path.resolve(answer.name), templateName)
+        .then((res: any) => {
+          answer.projectName = res.name
+          answer.projectPath = path.resolve(res.name)
+          return mkProject(answer)
         })
     } else {
-      return mkProject(projectPath, templateName)
+      return mkProject(answer)
     }
   }
-  function mkProject(projectPath: string, templateName: string) {
+  function mkProject(answer: any) {
+    const {projectPath, templateName} = answer
     console.log(chalk.green('⌛️ 项目构建中...\n'))
     const { repo } = config.find(item => item.name === templateName)!
     fsExtra.copySync(path.resolve(__dirname, `../../template/${repo}`), projectPath)
-    const content = fsExtra.readFileSync(`${projectPath}/package.json`, 'utf-8')
-    fsExtra.writeFileSync(`${projectPath}/package.json`, Handlebars.compile(content)({projectName}))
+    editPackageName(answer)
     console.log(chalk.green('✅ 项目构建完成\n'))
-    console.log(chalk.green('执行以下命令以启动项目:\n'))
-    console.log(chalk.green(`\t cd ${projectName}\n`))
-    console.log(chalk.green(`\t npm install\n`))
-    console.log(chalk.green(`\t 微信开发者工具: 工具 - 构建npm\n`))
+    if (repo === 'wxapp') {
+      wxappCreated(answer)
+    }
   }
+}
+
+function editPackageName(answer: any) {
+  const content = fsExtra.readFileSync(`${answer.projectPath}/package.json`, 'utf-8')
+  fsExtra.writeFileSync(`${answer.projectPath}/package.json`, Handlebars.compile(content)(answer))
+}
+
+function wxappCreated(answer: any) {
+  !answer.isOpen3rd && fsExtra.removeSync(`${answer.projectPath}/ext.json`)
+  const content = fsExtra.readFileSync(`${answer.projectPath}/modules/app.ext/app.config.js`, 'utf-8')
+  fsExtra.writeFileSync(`${answer.projectPath}/modules/app.ext/app.config.js`, Handlebars.compile(content)(answer))
+
+  console.log(chalk.green('执行以下命令以启动项目:\n'))
+  console.log(chalk.green(`\t cd ${answer.projectName}\n`))
+  console.log(chalk.green(`\t npm install\n`))
+  console.log(chalk.green(`\t 微信开发者工具: 工具 - 构建npm\n`))
 }

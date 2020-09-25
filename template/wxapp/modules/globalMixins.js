@@ -935,7 +935,7 @@ globalMixins({
           return options
         },
         function processExt(options) {
-          if (!config.ext) return
+          if (!config.ext) return options
           let result = app.check({ type: 'ext' })
           if (!result.status) {
             return result.promise
@@ -943,7 +943,7 @@ globalMixins({
           return options
         },
         function processSetting(options) {
-          if (!config.setting) return
+          if (!config.setting) return options
           let result = app.check({
             type: 'setting',
             mode: 'modal',
@@ -956,7 +956,7 @@ globalMixins({
           return options
         },
         function processWXToken(options) {
-          if (!config.weixin_token) return
+          if (!config.weixin_token) return options
           let result = app.check({
             type: 'weixin_token',
             mode: 'modal',
@@ -968,7 +968,7 @@ globalMixins({
           return options
         },
         function processWX(options) {
-          if (!config.weixin) return
+          if (!config.weixin) return options
           let conf = { ...config.weixin }
           let result = app.check({
             type: 'weixin',
@@ -996,7 +996,7 @@ globalMixins({
           return options
         },
         function processPhone(options) {
-          if (!config.phone) return
+          if (!config.phone) return options
           let conf = { ...config.phone }
           let result = app.check({
             type: 'phone',
@@ -1024,7 +1024,7 @@ globalMixins({
           return options
         },
         function processCity(options) {
-          if (!config.city) return
+          if (!config.city) return options
           let result = app.check({
             type: 'city',
             mode: 'modal',
@@ -1036,7 +1036,7 @@ globalMixins({
           return options
         },
         function processUcenter(options) {
-          if (!config.ucenter) return
+          if (!config.ucenter) return options
           let result = app.check({
             type: 'ucenter',
             mode: 'redirect',

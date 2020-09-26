@@ -1,7 +1,7 @@
-import * as pageExt from './pageExt.js'
-import * as localStore from './localStore.js'
+import {getCurrentHref} from './index'
+import * as wxStore from './wxStore.js'
 
-const c_v = localStore.storage('version') || '1.0.0'
+const c_v = wxStore.storage('version') || '1.0.0'
 const c_model = wx.getSystemInfoSync().model
 let app = getApp()
 
@@ -22,7 +22,7 @@ export function send(data) {
       c_bid: 32,
       nt: new Date().getTime(),
       ename: data.ename || '',
-      u: pageExt.getCurrentHref(),
+      u: getCurrentHref(),
       uuid: data.uuid,
       guid: data.guid,
       c_city_en: app.globalData.city
@@ -48,12 +48,12 @@ function createGUID(zid) {
   if (zid) {
     return formatId(zid, 16)
   }
-  let guid = localStore.storage('TJ_guid')
+  let guid = wxStore.storage('TJ_guid')
   if (guid) {
     return guid
   }
   guid = 'fk' + uuid(14, 62)
-  localStore.storage('TJ_guid', guid)
+  wxStore.storage('TJ_guid', guid)
   return guid
 }
 
@@ -102,11 +102,10 @@ function uuid(len, radix) {
  * 并且会被自动注入到page和component.methods中(即可以调用this.sendMsgChance)
  */
 export function sendMsgChance(e) {
-  app = app || getApp()
   if (!e) return
   if (!e.detail) return
   if (!e.detail.formId) return
-  this.$ajax({
+  wxp.request({
     url: app.globalData.urls.send_msg_chance,
     method: 'post',
     presetRequest: ['wa_code', 'open_id', 'bcode'],

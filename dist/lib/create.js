@@ -132,7 +132,7 @@ function create(projectName) {
             console.log(chalk_1.default.green('⌛️ 项目构建中...\n'));
             var repo = config_1.config.find(function (item) { return item.name === templateName; }).repo;
             fs_extra_1.default.copySync(path_1.default.resolve(__dirname, "../../template/" + repo), projectPath);
-            editPackageName(answer);
+            editProjectName(answer);
             console.log(chalk_1.default.green('✅ 项目构建完成\n'));
             if (repo === 'wxapp') {
                 wxappCreated(answer);
@@ -162,14 +162,20 @@ function create(projectName) {
     });
 }
 exports.default = create;
-function editPackageName(answer) {
-    var content = fs_extra_1.default.readFileSync(answer.projectPath + "/package.json", 'utf-8');
-    fs_extra_1.default.writeFileSync(answer.projectPath + "/package.json", handlebars_1.default.compile(content)(answer));
+function editProjectName(answer) {
+    // package.json 项目名称
+    var packageJson = fs_extra_1.default.readFileSync(answer.projectPath + "/package.json", 'utf-8');
+    fs_extra_1.default.writeFileSync(answer.projectPath + "/package.json", handlebars_1.default.compile(packageJson)(answer));
+    // project.config.json 项目名称
+    var projectConfig = fs_extra_1.default.readFileSync(answer.projectPath + "/project.config.json", 'utf-8');
+    fs_extra_1.default.writeFileSync(answer.projectPath + "/project.config.json", handlebars_1.default.compile(projectConfig)(answer));
 }
 function wxappCreated(answer) {
+    // 删除ext.json
     !answer.isOpen3rd && fs_extra_1.default.removeSync(answer.projectPath + "/ext.json");
-    var content = fs_extra_1.default.readFileSync(answer.projectPath + "/modules/app.ext/app.config.js", 'utf-8');
-    fs_extra_1.default.writeFileSync(answer.projectPath + "/modules/app.ext/app.config.js", handlebars_1.default.compile(content)(answer));
+    // 编译 app.config.js template/wxapp/config/app.config.js
+    var content = fs_extra_1.default.readFileSync(answer.projectPath + "/config/app.config.js", 'utf-8');
+    fs_extra_1.default.writeFileSync(answer.projectPath + "/config/app.config.js", handlebars_1.default.compile(content)(answer));
     console.log(chalk_1.default.green('执行以下命令以启动项目:\n'));
     console.log(chalk_1.default.green("\t cd " + answer.projectName + "\n"));
     console.log(chalk_1.default.green("\t npm install\n"));

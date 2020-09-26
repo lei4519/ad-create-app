@@ -98,7 +98,7 @@ export default async function create (projectName?: string) {
     console.log(chalk.green('⌛️ 项目构建中...\n'))
     const { repo } = config.find(item => item.name === templateName)!
     fsExtra.copySync(path.resolve(__dirname, `../../template/${repo}`), projectPath)
-    editPackageName(answer)
+    editProjectName(answer)
     console.log(chalk.green('✅ 项目构建完成\n'))
     if (repo === 'wxapp') {
       wxappCreated(answer)
@@ -106,15 +106,21 @@ export default async function create (projectName?: string) {
   }
 }
 
-function editPackageName(answer: any) {
-  const content = fsExtra.readFileSync(`${answer.projectPath}/package.json`, 'utf-8')
-  fsExtra.writeFileSync(`${answer.projectPath}/package.json`, Handlebars.compile(content)(answer))
+function editProjectName(answer: any) {
+  // package.json 项目名称
+  const packageJson = fsExtra.readFileSync(`${answer.projectPath}/package.json`, 'utf-8')
+  fsExtra.writeFileSync(`${answer.projectPath}/package.json`, Handlebars.compile(packageJson)(answer))
+  // project.config.json 项目名称
+  const projectConfig = fsExtra.readFileSync(`${answer.projectPath}/project.config.json`, 'utf-8')
+  fsExtra.writeFileSync(`${answer.projectPath}/project.config.json`, Handlebars.compile(projectConfig)(answer))
 }
 
 function wxappCreated(answer: any) {
+  // 删除ext.json
   !answer.isOpen3rd && fsExtra.removeSync(`${answer.projectPath}/ext.json`)
-  const content = fsExtra.readFileSync(`${answer.projectPath}/modules/app.ext/app.config.js`, 'utf-8')
-  fsExtra.writeFileSync(`${answer.projectPath}/modules/app.ext/app.config.js`, Handlebars.compile(content)(answer))
+  // 编译 app.config.js template/wxapp/config/app.config.js
+  const content = fsExtra.readFileSync(`${answer.projectPath}/config/app.config.js`, 'utf-8')
+  fsExtra.writeFileSync(`${answer.projectPath}/config/app.config.js`, Handlebars.compile(content)(answer))
 
   console.log(chalk.green('执行以下命令以启动项目:\n'))
   console.log(chalk.green(`\t cd ${answer.projectName}\n`))

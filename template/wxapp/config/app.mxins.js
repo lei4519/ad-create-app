@@ -1,15 +1,30 @@
-import { globalMixins } from 'enhance-wxapp'
-import * as localStore from './localStore'
-import * as wxExt from './wxExt'
-import config from './app.ext/app.config'
-import { sendMsgChance } from './lejuTJ'
-import wxp from './wxPromiseApi'
+import {
+  globalMixins,
+  wxp
+} from 'enhance-wxapp'
+import globalData from './app.data'
+import * as wxStore from './utils/wxStore'
+import * as utils from './utils'
+import config from './app.config'
+import {
+  sendMsgChance
+} from './utils/lejuTJ'
 const app = getApp()
+
 globalMixins({
   app: {
     hooks: {
       onLaunch: [
-        function (options) {
+        function mergeData(options) {
+          this.globalData = {
+            ...globalData,
+            ...(this.globalData || {})
+          }
+          this.version = this.version || '0.0.000.alpha'
+          this.BASE_VERSION = "1.2.015.rc"
+          return options
+        },
+        function onLaunch(options) {
           let {
             click_id,
             click_info,
@@ -17,13 +32,13 @@ globalMixins({
             click_id_time
           } = wx.getStorageSync('globalData') // 保存一个月，只和周期有关系
           //#region storage manage
-          localStore.storage('BASE_VERSION', this.BASE_VERSION)
-          const version = localStore.storage('version')
+          wxStore.storage('BASE_VERSION', this.BASE_VERSION)
+          const version = wxStore.storage('version')
           // 升版本清数据
           if (version != this.version) {
-            localStore.removeStorage('globalData')
-            localStore.removeStorage('auth_expires_begin')
-            localStore.storage('version', this.version)
+            wxStore.removeStorage('globalData')
+            wxStore.removeStorage('auth_expires_begin')
+            wxStore.storage('version', this.version)
           }
           // 存储过期设置
           const expires = config.auth_expires
@@ -31,22 +46,22 @@ globalMixins({
             // 无限
           } else if (expires == 0) {
             // 删除
-            localStore.removeStorage('globalData')
+            wxStore.removeStorage('globalData')
           } else if (expires > 0) {
             // 分钟
             const now = parseInt(new Date().getTime() / 1000 / 60)
-            const begin = localStore.storage('auth_expires_begin')
+            const begin = wxStore.storage('auth_expires_begin')
             if (!begin) {
-              localStore.storage('auth_expires_begin', now)
+              wxStore.storage('auth_expires_begin', now)
             } else if (begin + expires <= now) {
-              localStore.storage('auth_expires_begin', now)
-              localStore.removeStorage('globalData')
+              wxStore.storage('auth_expires_begin', now)
+              wxStore.removeStorage('globalData')
             }
           }
           //#endregion
 
           //#region globalData
-          let data = localStore.storage('globalData')
+          let data = wxStore.storage('globalData')
           if (data) {
             Object.assign(this.globalData, data)
           }
@@ -132,13 +147,18 @@ globalMixins({
 
       onHide: [
         function () {
-          localStore.storage('globalData', {
+          wxStore.storage('globalData', {
             user: this.globalData.user,
             city: this.globalData.city
           })
         }
       ]
     },
+
+    globalData,
+    version: '0.0.000.alpha',
+    BASE_VERSION: '1.2.015.rc',
+
     clickIdTimeFun(click_id_time) {
       let now = new Date().getTime()
       let timer = now - click_id_time
@@ -194,7 +214,7 @@ globalMixins({
             })
           })
       }
-      return wxPromise(fn)(params)
+      return utils.wxPromise(fn)(params)
     },
     /**
      * 设置顶部导航
@@ -202,7 +222,7 @@ globalMixins({
     setBasic() {
       if (!this.globalData.setting) return
       let basic_setting = this.globalData.setting.basic_setting
-      if (pageExt.getCurrentPage().route == 'pages/helphand/helphand') {
+      if (utils.getCurrentPage().route == 'pages/helphand/helphand') {
         return
       }
       if (basic_setting) {
@@ -270,7 +290,7 @@ globalMixins({
               })
           })
       }
-      return wxPromise(fn)(params)
+      return utils.wxPromise(fn)(params)
     },
     /**
      *  根据定位获取的坐标返回坐标的城市信息
@@ -300,7 +320,7 @@ globalMixins({
           .catch(options.fail)
           .finally(options.complete)
       }
-      return wxPromise(fn)(options)
+      return utils.wxPromise(fn)(options)
     },
     //#endregion
 
@@ -321,9 +341,9 @@ globalMixins({
                 // 验证服务端有效期
                 if (params.checkWeixinToken) {
                   this.checkWeixinToken({
-                    // 不自动清除
-                    clear: false
-                  })
+                      // 不自动清除
+                      clear: false
+                    })
                     .then(params.success)
                     .catch(() => {
                       this.globalData.user.weixin_code = ''
@@ -348,7 +368,7 @@ globalMixins({
             })
             .finally(params.complete)
         }
-        return wxPromise(fn)(params)
+        return utils.wxPromise(fn)(params)
       } else {
         const fn = params => {
           wxp
@@ -368,7 +388,7 @@ globalMixins({
             .catch(params.fail)
             .finally(params.complete)
         }
-        return wxPromise(fn)(params)
+        return utils.wxPromise(fn)(params)
       }
     },
     /**
@@ -397,7 +417,7 @@ globalMixins({
           .catch(options.fail)
           .finally(options.complete)
       }
-      return wxPromise(fn)(options)
+      return utils.wxPromise(fn)(options)
     },
     /**
      * 换取token
@@ -437,7 +457,7 @@ globalMixins({
           .catch(params.fail)
           .finally(params.complete)
       }
-      return wxPromise(fn)(params)
+      return utils.wxPromise(fn)(params)
     },
     //#endregion
 
@@ -449,8 +469,8 @@ globalMixins({
     weixinTokenMain(params) {
       const fn = params => {
         this.weixinLogin({
-          checkWeixinToken: true
-        })
+            checkWeixinToken: true
+          })
           .then(res => {
             this.checkApply(params)
           })
@@ -481,8 +501,8 @@ globalMixins({
               })
               .then(res => {
                 this.getWeixinUser({
-                  detail: res
-                })
+                    detail: res
+                  })
                   .then(() => {
                     this.checkApply(params)
                   })
@@ -510,7 +530,7 @@ globalMixins({
             })
           })
       }
-      return wxPromise(fn)(params)
+      return utils.wxPromise(fn)(params)
     },
     /**
      * 解密、存储微信用户信息
@@ -538,8 +558,10 @@ globalMixins({
                 // 保存到本地
                 this.globalData.user.weixin = detail
                 if (IM.IMplugin.isLogin()) {
-                  const { nickName = '', avatarUrl = '' } =
-                    detail.userInfo || {}
+                  const {
+                    nickName = '', avatarUrl = ''
+                  } =
+                  detail.userInfo || {}
                   IM.IMplugin.setUserInfo(nickName, avatarUrl)
                 }
                 options.success(res.data)
@@ -547,7 +569,7 @@ globalMixins({
                 //xiaob_entry=='on'为小B模式
                 console.log(
                   res.data.entry.xiaob_entry.is_entry +
-                    'res.data.entry.xiaob_entry.is_entry'
+                  'res.data.entry.xiaob_entry.is_entry'
                 )
                 wx.setStorageSync(
                   'is_entry',
@@ -576,7 +598,7 @@ globalMixins({
         }
         // options.complete();
       }
-      return wxPromise(fn)(options)
+      return utils.wxPromise(fn)(options)
     },
     //#endregion
 
@@ -603,7 +625,7 @@ globalMixins({
             })
           })
       }
-      return wxPromise(fn)(params)
+      return utils.wxPromise(fn)(params)
     },
 
     getWeixinPhone(options) {
@@ -648,7 +670,7 @@ globalMixins({
           options.complete()
         }
       }
-      return wxPromise(fn)(options)
+      return utils.wxPromise(fn)(options)
     },
     //#endregion
 
@@ -685,8 +707,8 @@ globalMixins({
      * 乐居会员中心登录
      * 建议根据业务重写
      */
-    ucenterLogin(params) {
-      var that = pageExt.getCurrentPage()
+    ucenterLogin() {
+      var that = utils.getCurrentPage()
       if (that) {
         that.setData({
           isShowLoginModel: true
@@ -715,9 +737,8 @@ globalMixins({
 
     //#region check
     check(params) {
-      params = Object.assign(
-        {
-          url: pageExt.getCurrentHref(),
+      params = Object.assign({
+          url: utils.getCurrentHref(),
           mode: 'redirect',
           refresh: 'redirect',
           once: false
@@ -730,7 +751,7 @@ globalMixins({
       // ext.json在onLaunch已经同步处理，直接返回结果无需异步操作
       // 必选条件
       if (params.type === 'ext' && !this.globalData.ext) {
-        promise = wxPromise(params => {
+        promise = utils.wxPromise(params => {
           this.checkAuth({
             ...params,
             type: 'ext',
@@ -780,7 +801,7 @@ globalMixins({
       }
       // 直接通过验证
       else if (!promise) {
-        promise = wxPromise(params => {
+        promise = utils.wxPromise(params => {
           params.success(params.type)
           params.complete()
         })(params)
@@ -796,7 +817,7 @@ globalMixins({
     // 检测通过
     checkApply(params) {
       if (params.refresh === 'redirect') {
-        wxExt.redirectTo({
+        utils.redirectTo({
           url: params.url
         })
       }
@@ -822,7 +843,7 @@ globalMixins({
             console.log('warn', 'messageLock', params)
           }
           this.globalData.info.messageLock = true
-          wxExt.redirectTo({
+          utils.redirectTo({
             // url: `/pages/utils/userauth?msg=${msg}&url=${encodeURIComponent(url)}&type=${type}&once=${once ? 1 : 0}`
             url: `/pages/utils/message?msg=${msg}&url=${encodeURIComponent(
               url
@@ -838,7 +859,7 @@ globalMixins({
           })
           .then(res => {
             if (res.confirm) {
-              wxExt.redirectTo({
+              utils.redirectTo({
                 url
               })
             }
@@ -887,6 +908,20 @@ globalMixins({
   page: {
     hooks: {
       onLoad: [
+        function sendMsgChance(options) {
+          // 装饰后续所有生命周期和方法，记录formId
+          Object.entries(this).forEach(([key, val]) => {
+            if (typeof val === 'function' && key !== 'sendMsgChance') {
+              this[key] = function (...opts) {
+                sendMsgChance.apply(this, opts)
+                return val.apply(this, opts)
+              }
+            }
+          })
+          // onLoad自行调用一次
+          this.sendMsgChance(options)
+          return options
+        },
         function processOptions(options) {
           Object.keys(options).forEach(key => {
             if (options[key] === 'undefined') {
@@ -904,20 +939,25 @@ globalMixins({
               ext: config.enable_ext,
               setting: config.enable_setting
             },
+            // 兼容旧项目
+            ...config.pages_check['/' + this.route],
+            // 新项目使用下面这个
             ...this.config
           }
           return options
         },
         function processExt(options) {
-          if (!config.ext) return options
-          let result = app.check({ type: 'ext' })
+          if (!this.config.ext) return options
+          let result = app.check({
+            type: 'ext'
+          })
           if (!result.status) {
-            return result.promise
+            return result.promise.then(() => options)
           }
           return options
         },
         function processSetting(options) {
-          if (!config.setting) return options
+          if (!this.config.setting) return options
           let result = app.check({
             type: 'setting',
             mode: 'modal',
@@ -925,25 +965,27 @@ globalMixins({
           })
           // 同步验证通过
           if (!result.status) {
-            return result.promise
+            return result.promise.then(() => options)
           }
           return options
         },
         function processWXToken(options) {
-          if (!config.weixin_token) return options
+          if (!this.config.weixin_token) return options
           let result = app.check({
             type: 'weixin_token',
             mode: 'modal',
             refresh: 'none'
           })
           if (!result.status) {
-            return result.promise
+            return result.promise.then(() => options)
           }
           return options
         },
         function processWX(options) {
-          if (!config.weixin) return options
-          let conf = { ...config.weixin }
+          if (!this.config.weixin) return options
+          let conf = {
+            ...this.config.weixin
+          }
           let result = app.check({
             type: 'weixin',
             mode: 'redirect',
@@ -952,26 +994,28 @@ globalMixins({
           })
           if (!result.status) {
             if (!conf.once) {
-              return result.promise
+              return result.promise.then(() => options)
             }
             const fn = obj => {
               result.promise
                 .then(res => {
-                  obj.success('weixin')
+                  obj.success(options)
                 })
                 .catch(err => {
                   if (err.once && err.onceUsed) {
-                    obj.success('weixin')
+                    obj.success(options)
                   }
                 })
             }
-            return wxPromise(fn)()
+            return utils.wxPromise(fn)()
           }
           return options
         },
         function processPhone(options) {
-          if (!config.phone) return options
-          let conf = { ...config.phone }
+          if (!this.config.phone) return options
+          let conf = {
+            ...this.config.phone
+          }
           let result = app.check({
             type: 'phone',
             mode: 'redirect',
@@ -980,52 +1024,46 @@ globalMixins({
           })
           if (!result.status) {
             if (!conf.once) {
-              return result.promise
+              return result.promise.then(() => options)
             }
             const fn = obj => {
               result.promise
                 .then(res => {
-                  obj.success('phone')
+                  obj.success(options)
                 })
                 .catch(err => {
                   if (err.once && err.onceUsed) {
-                    obj.success('phone')
+                    obj.success(options)
                   }
                 })
             }
-            return wxPromise(fn)()
+            return utils.wxPromise(fn)()
           }
           return options
         },
         function processCity(options) {
-          if (!config.city) return options
+          if (!this.config.city) return options
           let result = app.check({
             type: 'city',
             mode: 'modal',
             refresh: 'none'
           })
           if (!result.status) {
-            return result.promise
+            return result.promise.then(() => options)
           }
           return options
         },
         function processUcenter(options) {
-          if (!config.ucenter) return options
+          if (!this.config.ucenter) return options
           let result = app.check({
             type: 'ucenter',
             mode: 'redirect',
             refresh: 'redirect'
           })
           if (!result.status) {
-            return result.promise
+            return result.promise.then(() => options)
           }
           return options
-        }
-      ],
-      onShow: [
-        function (opt) {
-          sendMsgChance()
-          return opt
         }
       ],
       onReady: [
@@ -1062,9 +1100,29 @@ globalMixins({
           Object.assign(this[key][k], o)
         }
       }
+    },
+    catchLifeCycleError(name, err) {
+      console.error(`生命周期函数: ${name} 执行失败！`, err)
     }
   },
+
   component: {
+    created: [
+      function sendMsgChance(options) {
+        // 装饰后续所有生命周期和方法，记录formId
+        Object.entries(this).forEach(([key, val]) => {
+          if (typeof val === 'function' && key !== 'sendMsgChance') {
+            this[key] = function (...opts) {
+              sendMsgChance.apply(this, opts)
+              return val.apply(this, opts)
+            }
+          }
+        })
+        // created自行调用一次
+        this.sendMsgChance(options)
+        return options
+      },
+    ],
     sendMsgChance
   }
 })

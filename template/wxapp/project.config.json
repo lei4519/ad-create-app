@@ -57,7 +57,7 @@
 	"compileType": "miniprogram",
 	"libVersion": "2.10.4",
 	"appid": "wx5ad06e061ab9512e",
-	"projectname": "template-wxapp",
+	"projectname": "{{ projectName }}",
 	"debugOptions": {
 		"hidedInDevtools": []
 	},

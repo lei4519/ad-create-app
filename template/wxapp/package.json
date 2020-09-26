@@ -10,8 +10,7 @@
   "author": "lei4519",
   "license": "ISC",
   "dependencies": {
-    "enhance-wxapp": "git+https://gitlab.leju.com/adjs-ljl/enhance-wxapp.git",
-    "miniprogram-api-promise": "^1.0.4"
+    "enhance-wxapp": "git+https://gitlab.leju.com/adjs-ljl/enhance-wxapp.git"
   },
   "devDependencies": {
     "@commitlint/cli": "^11.0.0",

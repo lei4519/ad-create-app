@@ -1,30 +1,18 @@
-import {
-  globalMixins,
-  wxp
-} from 'enhance-wxapp'
+import { globalMixins, wxp } from 'enhance-wxapp'
 import globalData from './app.data'
 import * as wxStore from './utils/wxStore'
 import * as utils from './utils'
 import config from './app.config'
-import {
-  sendMsgChance
-} from './utils/lejuTJ'
-const app = getApp()
+import { sendMsgChance } from './utils/lejuTJ'
+let app = getApp()
 
 globalMixins({
   app: {
     hooks: {
       onLaunch: [
-        function mergeData(options) {
-          this.globalData = {
-            ...globalData,
-            ...(this.globalData || {})
-          }
-          this.version = this.version || '0.0.000.alpha'
-          this.BASE_VERSION = "1.2.015.rc"
-          return options
-        },
         function onLaunch(options) {
+          app = app || getApp()
+
           let {
             click_id,
             click_info,
@@ -187,7 +175,8 @@ globalMixins({
      */
     getSetting(params) {
       const fn = params => {
-        this.$ajax({
+        wxp
+          .request({
             url: this.globalData.urls.get_setting,
             presetRequest: ['wa_code', 'bcode', 'btype'],
             catchResponse: false
@@ -243,7 +232,7 @@ globalMixins({
      */
     setTabBar() {
       if (!this.globalData.setting) return
-      this.$ajax({
+      wxp.request({
         url: this.globalData.urls.floatImService,
         presetRequest: ['wa_code'],
         data: {
@@ -303,7 +292,8 @@ globalMixins({
           data.location_x = options.latitude
           data.location_y = options.longitude
         }
-        this.$ajax({
+        wxp
+          .request({
             url: this.globalData.urls.get_city,
             presetRequest: ['wa_code'],
             catchResponse: false,
@@ -341,14 +331,14 @@ globalMixins({
                 // 验证服务端有效期
                 if (params.checkWeixinToken) {
                   this.checkWeixinToken({
-                      // 不自动清除
-                      clear: false
-                    })
+                    // 不自动清除
+                    clear: false
+                  })
                     .then(params.success)
                     .catch(() => {
                       this.globalData.user.weixin_code = ''
                       this.weixinLogin(
-                        replaceWithNoop(params, 'complete')
+                        utils.replaceWithNoop(params, 'complete')
                       ).catch(noop)
                     })
                 } else {
@@ -356,7 +346,7 @@ globalMixins({
                 }
               } else {
                 // 有code无token
-                this.getWeixinToken(replaceWithNoop(params, 'complete')).catch(
+                this.getWeixinToken(utils.replaceWithNoop(params, 'complete')).catch(
                   noop
                 )
               }
@@ -364,7 +354,7 @@ globalMixins({
             .catch(() => {
               // 过期，重新调用login
               this.globalData.user.weixin_code = ''
-              this.weixinLogin(replaceWithNoop(params, 'complete')).catch(noop)
+              this.weixinLogin(utils.replaceWithNoop(params, 'complete')).catch(noop)
             })
             .finally(params.complete)
         }
@@ -378,7 +368,7 @@ globalMixins({
                 // 1、得到微信code
                 this.globalData.user.weixin_code = res.code
                 // 2、code换取token 内部执行回调
-                this.getWeixinToken(replaceWithNoop(params, 'complete')).catch(
+                this.getWeixinToken(utils.replaceWithNoop(params, 'complete')).catch(
                   noop
                 )
               } else {
@@ -401,7 +391,8 @@ globalMixins({
           clear: true,
           ...options
         }
-        this.$ajax({
+        wxp
+          .request({
             url: this.globalData.urls.check_weixin_token,
             type: 'GET',
             catchResponse: false
@@ -424,7 +415,8 @@ globalMixins({
      */
     getWeixinToken(params) {
       const fn = params => {
-        this.$ajax({
+        wxp
+          .request({
             url: this.globalData.urls.get_weixin_token,
             presetRequest: ['wa_code'],
             catchResponse: false,
@@ -469,8 +461,8 @@ globalMixins({
     weixinTokenMain(params) {
       const fn = params => {
         this.weixinLogin({
-            checkWeixinToken: true
-          })
+          checkWeixinToken: true
+        })
           .then(res => {
             this.checkApply(params)
           })
@@ -501,8 +493,8 @@ globalMixins({
               })
               .then(res => {
                 this.getWeixinUser({
-                    detail: res
-                  })
+                  detail: res
+                })
                   .then(() => {
                     this.checkApply(params)
                   })
@@ -541,27 +533,27 @@ globalMixins({
         if (detail.errMsg === 'getUserInfo:ok') {
           // this.globalData.user.weixin = detail;
           //保存/更新小程序用户授权信息
-          this.$ajax({
-            url: this.globalData.urls.save_weixin_user,
-            presetRequest: ['wa_code', 'btype', 'bcode', 'scene'],
-            catchResponse: false,
-            data: {
-              encrypted_data: detail.encryptedData,
-              raw_data: detail.rawData,
-              signature: detail.signature,
-              iv: detail.iv
-            },
-            method: 'POST',
-            success: res => {
+          wxp
+            .request({
+              url: this.globalData.urls.save_weixin_user,
+              presetRequest: ['wa_code', 'btype', 'bcode', 'scene'],
+              catchResponse: false,
+              data: {
+                encrypted_data: detail.encryptedData,
+                raw_data: detail.rawData,
+                signature: detail.signature,
+                iv: detail.iv
+              },
+              method: 'POST'
+            })
+            .then(res => {
               if (!res.data.error_code) {
                 console.log('info', '保存用户信息成功')
                 // 保存到本地
                 this.globalData.user.weixin = detail
                 if (IM.IMplugin.isLogin()) {
-                  const {
-                    nickName = '', avatarUrl = ''
-                  } =
-                  detail.userInfo || {}
+                  const { nickName = '', avatarUrl = '' } =
+                    detail.userInfo || {}
                   IM.IMplugin.setUserInfo(nickName, avatarUrl)
                 }
                 options.success(res.data)
@@ -569,7 +561,7 @@ globalMixins({
                 //xiaob_entry=='on'为小B模式
                 console.log(
                   res.data.entry.xiaob_entry.is_entry +
-                  'res.data.entry.xiaob_entry.is_entry'
+                    'res.data.entry.xiaob_entry.is_entry'
                 )
                 wx.setStorageSync(
                   'is_entry',
@@ -587,10 +579,13 @@ globalMixins({
                 console.log('warn', res)
                 options.fail(res.data)
               }
-            },
-            fail: options.fail,
-            complete: options.complete
-          })
+            })
+            .catch(() => {
+              options.fail && options.fail()
+            })
+            .finally(() => {
+              options.complete && options.complete()
+            })
           // options.success();
         } else {
           options.fail()
@@ -633,16 +628,16 @@ globalMixins({
         let detail = options.detail
         if (detail.errMsg === 'getPhoneNumber:ok') {
           // 解密
-          this.$ajax({
-              url: this.globalData.urls.get_weixin_phone,
-              method: 'POST',
-              presetRequest: ['wa_code', 'bcode', 'btype'],
-              catchResponse: false,
-              data: {
-                encrypted_data: detail.encryptedData,
-                iv: detail.iv
-              }
-            })
+          wxp.request({
+            url: this.globalData.urls.get_weixin_phone,
+            method: 'POST',
+            presetRequest: ['wa_code', 'bcode', 'btype'],
+            catchResponse: false,
+            data: {
+              encrypted_data: detail.encryptedData,
+              iv: detail.iv
+            }
+          })
             .then(res => {
               if (res.data.error_code) {
                 options.fail(res.data)
@@ -650,7 +645,7 @@ globalMixins({
                 this.globalData.user.phone = res.data.entry
                 // 没有个人中心的项目建立uid关联
                 if (config.bind_uid_mobile) {
-                  this.$ajax({
+                  wxp.request({
                     url: this.globalData.urls.bind_uid_mobile,
                     presetRequest: ['bcode', 'btype'],
                     catchResponse: false,
@@ -737,7 +732,8 @@ globalMixins({
 
     //#region check
     check(params) {
-      params = Object.assign({
+      params = Object.assign(
+        {
           url: utils.getCurrentHref(),
           mode: 'redirect',
           refresh: 'redirect',
@@ -909,6 +905,8 @@ globalMixins({
     hooks: {
       onLoad: [
         function sendMsgChance(options) {
+          app = app || getApp()
+
           // 装饰后续所有生命周期和方法，记录formId
           Object.entries(this).forEach(([key, val]) => {
             if (typeof val === 'function' && key !== 'sendMsgChance') {
@@ -1109,6 +1107,8 @@ globalMixins({
   component: {
     created: [
       function sendMsgChance(options) {
+        app = app || getApp()
+
         // 装饰后续所有生命周期和方法，记录formId
         Object.entries(this).forEach(([key, val]) => {
           if (typeof val === 'function' && key !== 'sendMsgChance') {
@@ -1121,7 +1121,7 @@ globalMixins({
         // created自行调用一次
         this.sendMsgChance(options)
         return options
-      },
+      }
     ],
     sendMsgChance
   }

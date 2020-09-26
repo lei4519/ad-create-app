@@ -3,11 +3,13 @@ import {
 } from 'enhance-wxapp'
 import logger from './utils/wxLog'
 import config from './app.config'
-const app = getApp()
+let app = getApp()
 
 let loading = false
 // 请求拦截器
 wxp.request.interceptors.request.use(function (options) {
+  app = app || getApp()
+
   options = Object.assign({
       showLoading: true, // 默认显示loading
       multiple: true, // 默认允许并行请求

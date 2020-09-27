@@ -4,7 +4,7 @@
   "description": "ad-create-app cli",
   "repository": {
     "type": "git",
-    "url": "git@gitlab.leju.com:adjs-ljl/ad-create-app.git"
+    "url": "git@gitlab.leju.com:utils/ad-create-app.git"
   },
   "scripts": {
     "dev": "tsc -w",

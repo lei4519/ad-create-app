@@ -117,6 +117,7 @@ globalMixins({
             })
           }
           //#endregion
+          return options
         }
       ],
 
@@ -130,6 +131,7 @@ globalMixins({
               this.clearWeixin('token')
             })
           }
+          return options
         }
       ],
 
@@ -904,23 +906,8 @@ globalMixins({
   page: {
     hooks: {
       onLoad: [
-        function sendMsgChance(options) {
-          app = app || getApp()
-
-          // 装饰后续所有生命周期和方法，记录formId
-          Object.entries(this).forEach(([key, val]) => {
-            if (typeof val === 'function' && key !== 'sendMsgChance') {
-              this[key] = function (...opts) {
-                sendMsgChance.apply(this, opts)
-                return val.apply(this, opts)
-              }
-            }
-          })
-          // onLoad自行调用一次
-          this.sendMsgChance(options)
-          return options
-        },
         function processOptions(options) {
+          app = app || getApp()
           Object.keys(options).forEach(key => {
             if (options[key] === 'undefined') {
               delete options[key]
@@ -1105,24 +1092,6 @@ globalMixins({
   },
 
   component: {
-    created: [
-      function sendMsgChance(options) {
-        app = app || getApp()
-
-        // 装饰后续所有生命周期和方法，记录formId
-        Object.entries(this).forEach(([key, val]) => {
-          if (typeof val === 'function' && key !== 'sendMsgChance') {
-            this[key] = function (...opts) {
-              sendMsgChance.apply(this, opts)
-              return val.apply(this, opts)
-            }
-          }
-        })
-        // created自行调用一次
-        this.sendMsgChance(options)
-        return options
-      }
-    ],
     sendMsgChance
   }
 })

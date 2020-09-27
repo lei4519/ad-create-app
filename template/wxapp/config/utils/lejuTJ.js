@@ -16,6 +16,7 @@ let app = getApp()
 export function send(data) {
   data.uuid = createUUID(data.uuid)
   data.guid = createGUID(data.guid)
+  app = app || getApp()
   wx.request({
     url: 'https://tongji.leju.com/e.gif',
     data: {
@@ -105,6 +106,7 @@ export function sendMsgChance(e) {
   if (!e) return
   if (!e.detail) return
   if (!e.detail.formId) return
+  app = app || getApp()
   wxp.request({
     url: app.globalData.urls.send_msg_chance,
     method: 'post',

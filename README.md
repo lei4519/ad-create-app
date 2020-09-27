@@ -3,7 +3,7 @@
 ## 安装
 
 ```shell
-cnpm i git+https://gitlab.leju.com/adjs-ljl/ad-create-app.git --global
+cnpm i git+https://gitlab.leju.com/utils/ad-create-app.git --global
 ```
 
 ## 使用
@@ -17,7 +17,7 @@ ad-create-app create 项目名称
 
 ### 小程序框架模版
 
-- [enhance-wxapp 框架](https://gitlab.leju.com/adjs-ljl/enhance-wxapp)
+- [enhance-wxapp 框架](https://gitlab.leju.com/librarys/enhance-weapp)
 
 - scss -> wxss 编译
 
@@ -27,7 +27,7 @@ ad-create-app create 项目名称
 
 - eslint、prettrer代码风格检查/修复
 
-- [git commit 提交消息规范检查](https://gitlab.leju.com/adjs-ljl/docs/blob/master/docs/git-commit.md)
+- [git commit 提交消息规范检查](https://gitlab.leju.com/document/docs/blob/master/docs/git-commit.md)
 
 #### scss 编译
 

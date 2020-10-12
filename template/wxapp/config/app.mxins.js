@@ -1,7 +1,7 @@
 import { globalMixins, wxp } from 'enhance-weapp'
 import globalData from './app.data'
 import * as wxStore from './utils/wxStore'
-import * as utils from './utils'
+import * as utils from './utils/index'
 import config from './app.config'
 import { sendMsgChance } from './utils/lejuTJ'
 let app = getApp()

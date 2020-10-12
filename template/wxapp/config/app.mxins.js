@@ -1,4 +1,4 @@
-import { globalMixins, wxp } from 'enhance-wxapp'
+import { globalMixins, wxp } from 'enhance-weapp'
 import globalData from './app.data'
 import * as wxStore from './utils/wxStore'
 import * as utils from './utils'

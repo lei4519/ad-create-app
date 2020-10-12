@@ -1,6 +1,6 @@
 import {
   wxp
-} from 'enhance-wxapp'
+} from 'enhance-weapp'
 import logger from './utils/wxLog'
 import config from './app.config'
 let app = getApp()

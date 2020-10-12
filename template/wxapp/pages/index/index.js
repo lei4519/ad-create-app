@@ -1,4 +1,4 @@
-import {Epage, ref} from 'enhance-wxapp'
+import {Epage, ref} from 'enhance-weapp'
 
 function useCount() {
   const count = ref(0)

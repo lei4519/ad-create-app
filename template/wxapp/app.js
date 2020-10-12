@@ -1,5 +1,5 @@
 //app.js
-import { Eapp } from 'enhance-wxapp'
+import { Eapp } from 'enhance-weapp'
 
 // 全局混入
 import './config/app.mxins'

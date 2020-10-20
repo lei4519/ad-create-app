@@ -3,7 +3,6 @@ const sass = require('gulp-sass')
 const rename = require('gulp-rename')
 const postcss = require('gulp-postcss')
 const replace = require('gulp-replace')
-const pxtorpx = require('postcss-px2rpx')
 const cleanCSS = require('gulp-clean-css')
 
 const PATH = './**/*.scss'
@@ -25,7 +24,19 @@ const sass2wxss = () => {
       )
     )
     .pipe(sass({ outputStyle: 'expanded' }).on('error', sass.logError))
-    .pipe(postcss([pxtorpx()]))
+    .pipe(
+      postcss([
+        css => {
+          css.walkDecls(decl => {
+            decl.value.includes('px') &&
+              (decl.value = decl.value.replace(
+                /(-?\d+(\.\d+)?)px/gi,
+                ($1, $2) => $2 * 2 + 'rpx'
+              ))
+          })
+        }
+      ])
+    )
     .pipe(cleanCSS())
     .pipe(replace(/\/\*!\s(@import\s+.+;)\s\*\//g, ($1, $2) => $2))
     .pipe(rename({ extname: '.wxss' }))

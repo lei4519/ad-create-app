@@ -39,6 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.compileFile = exports.copyTemplate = void 0;
 var config_1 = require("../config");
 var utils_1 = require("../utils");
 var path_1 = __importDefault(require("path"));
@@ -61,8 +62,8 @@ function create(projectName) {
                                 return chalk_1.default.red('目录名称不合法, 请重新输入');
                             }
                             return true;
-                        }
-                    }
+                        },
+                    },
                 ])
                     .then(function (res) {
                     answer.projectName = res.name;
@@ -70,35 +71,10 @@ function create(projectName) {
             }
             return Promise.resolve();
         }
-        function chooseTemplate() {
-            return inquirer_1.default
-                .prompt([
-                {
-                    type: 'list',
-                    name: 'name',
-                    message: chalk_1.default.green('请选择模板'),
-                    choices: config_1.config.map(function (_) { return _.name; })
-                }
-            ])
-                .then(function (res) {
-                answer.templateName = res.name;
-                if (answer.templateName === '微信小程序') {
-                    return inquirer_1.default.prompt([
-                        {
-                            type: 'confirm',
-                            name: 'confirm',
-                            message: chalk_1.default.green('是第三方小程序吗？'),
-                        },
-                    ]).then(function (res) {
-                        answer.isOpen3rd = res.confirm;
-                    });
-                }
-            });
-        }
         function checkDir() {
-            var projectPath = answer.projectPath = path_1.default.resolve(answer.projectName);
+            var projectPath = (answer.projectPath = path_1.default.resolve(answer.projectName));
             if (utils_1.isDirExists(projectPath)) {
-                inquirer_1.default
+                return inquirer_1.default
                     .prompt([
                     {
                         type: 'input',
@@ -114,29 +90,30 @@ function create(projectName) {
                             else {
                                 return true;
                             }
-                        }
-                    }
+                        },
+                    },
                 ])
                     .then(function (res) {
                     answer.projectName = res.name;
                     answer.projectPath = path_1.default.resolve(res.name);
-                    return mkProject(answer);
                 });
             }
-            else {
-                return mkProject(answer);
-            }
         }
-        function mkProject(answer) {
-            var projectPath = answer.projectPath, templateName = answer.templateName;
-            console.log(chalk_1.default.green('⌛️ 项目构建中...\n'));
-            var repo = config_1.config.find(function (item) { return item.name === templateName; }).repo;
-            fs_extra_1.default.copySync(path_1.default.resolve(__dirname, "../../template/" + repo), projectPath);
-            editProjectName(answer);
-            console.log(chalk_1.default.green('✅ 项目构建完成\n'));
-            if (repo === 'wxapp') {
-                wxappCreated(answer);
-            }
+        function chooseTemplate() {
+            return inquirer_1.default
+                .prompt([
+                {
+                    type: 'list',
+                    name: 'name',
+                    message: chalk_1.default.green('请选择模板'),
+                    choices: config_1.config.map(function (_) { return _.name; }),
+                },
+            ])
+                .then(function (res) {
+                answer.templateName = res.name;
+                var repo = config_1.config.find(function (item) { return item.name === res.name; }).repo;
+                return require("./" + repo).default(answer);
+            });
         }
         var answer;
         return __generator(this, function (_a) {
@@ -145,15 +122,15 @@ function create(projectName) {
                     answer = {
                         projectName: projectName,
                         templateName: '',
-                        projectPath: ''
+                        projectPath: '',
                     };
                     return [4 /*yield*/, checkProjectName()];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, chooseTemplate()];
+                    return [4 /*yield*/, checkDir()];
                 case 2:
                     _a.sent();
-                    return [4 /*yield*/, checkDir()];
+                    return [4 /*yield*/, chooseTemplate()];
                 case 3:
                     _a.sent();
                     return [2 /*return*/];
@@ -162,22 +139,13 @@ function create(projectName) {
     });
 }
 exports.default = create;
-function editProjectName(answer) {
-    // package.json 项目名称
-    var packageJson = fs_extra_1.default.readFileSync(answer.projectPath + "/package.json", 'utf-8');
-    fs_extra_1.default.writeFileSync(answer.projectPath + "/package.json", handlebars_1.default.compile(packageJson)(answer));
-    // project.config.json 项目名称
-    var projectConfig = fs_extra_1.default.readFileSync(answer.projectPath + "/project.config.json", 'utf-8');
-    fs_extra_1.default.writeFileSync(answer.projectPath + "/project.config.json", handlebars_1.default.compile(projectConfig)(answer));
+function copyTemplate(answer, p) {
+    var projectPath = answer.projectPath;
+    console.log(chalk_1.default.green('⌛️ 项目构建中...\n'));
+    fs_extra_1.default.copySync(path_1.default.resolve(__dirname, "../../template/" + p), projectPath);
 }
-function wxappCreated(answer) {
-    // 删除ext.json
-    !answer.isOpen3rd && fs_extra_1.default.removeSync(answer.projectPath + "/ext.json");
-    // 编译 app.config.js template/wxapp/config/app.config.js
-    var content = fs_extra_1.default.readFileSync(answer.projectPath + "/config/app.config.js", 'utf-8');
-    fs_extra_1.default.writeFileSync(answer.projectPath + "/config/app.config.js", handlebars_1.default.compile(content)(answer));
-    console.log(chalk_1.default.green('执行以下命令以启动项目:\n'));
-    console.log(chalk_1.default.green("\t cd " + answer.projectName + "\n"));
-    console.log(chalk_1.default.green("\t npm install\n"));
-    console.log(chalk_1.default.green("\t \u5FAE\u4FE1\u5F00\u53D1\u8005\u5DE5\u5177: \u5DE5\u5177 - \u6784\u5EFAnpm\n"));
+exports.copyTemplate = copyTemplate;
+function compileFile(answer, p) {
+    fs_extra_1.default.writeFileSync(answer.projectPath + "/" + p, handlebars_1.default.compile(fs_extra_1.default.readFileSync(answer.projectPath + "/" + p, 'utf-8'))(answer));
 }
+exports.compileFile = compileFile;

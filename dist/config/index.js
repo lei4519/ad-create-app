@@ -4,6 +4,10 @@ exports.config = void 0;
 exports.config = [
     {
         name: '微信小程序',
-        repo: 'wxapp'
-    }
+        repo: 'wxapp',
+    },
+    {
+        name: 'H5',
+        repo: 'h5-vue',
+    },
 ];

@@ -1,0 +1,17 @@
+.sprite { background-image: url(./sprites/sprite.png); background-repeat: no-repeat; background-size: 289px 226px }
+.sprite-cur-city-border { @extend .sprite; width: 79px; height: 27px; background-position: -124px -55px; }
+.sprite-diamond { @extend .sprite; width: 14px; height: 9px; background-position: -274px -89px; }
+.sprite-foreshow { @extend .sprite; width: 8px; height: 8px; background-position: -248px -115.5px; }
+.sprite-home3 { @extend .sprite; width: 114px; height: 45px; background-position: 0px 0px; }
+.sprite-hot3 { @extend .sprite; width: 114px; height: 45px; background-position: 0px -55px; }
+.sprite-letter-close { @extend .sprite; width: 28px; height: 28px; background-position: -248px -51px; }
+.sprite-live { @extend .sprite; width: 54px; height: 54px; background-position: 0px -172px; }
+.sprite-living { @extend .sprite; width: 7.5px; height: 7.5px; background-position: -248px -133.5px; }
+.sprite-location { @extend .sprite; width: 16px; height: 16.5px; background-position: -248px -89px; }
+.sprite-logo { @extend .sprite; width: 179.5px; height: 21px; background-position: 0px -110px; }
+.sprite-logo1 { @extend .sprite; width: 179.5px; height: 21px; background-position: 0px -141px; }
+.sprite-new-icon { @extend .sprite; width: 44px; height: 44px; background-position: -64px -172px; }
+.sprite-new-year-straight { @extend .sprite; width: 48px; height: 40px; background-position: -118px -172px; }
+.sprite-new3 { @extend .sprite; width: 114px; height: 45px; background-position: -124px 0px; }
+.sprite-replay { @extend .sprite; width: 8px; height: 8px; background-position: -266px -115.5px; }
+.sprite-super-red { @extend .sprite; width: 41px; height: 41px; background-position: -248px 0px; }

@@ -1,0 +1,9 @@
+@import './sprites/sprite.scss';
+
+html,
+body {
+  box-sizing: border-box;
+  * {
+    box-sizing: inherit;
+  }
+}

@@ -1,7 +1,9 @@
 const autoprefixer = require('autoprefixer')
+const pxToViewport = require('postcss-px-to-viewport')
 module.exports = {
-  plugins: {
-    'postcss-px-to-viewport': {
+  plugins: [
+    autoprefixer(),
+    pxToViewport({
       unitToConvert: 'px',
       viewportWidth: 375,
       unitPrecision: 5,
@@ -11,6 +13,6 @@ module.exports = {
       selectorBlackList: [],
       minPixelValue: 1,
       replace: true,
-    },
-  },
+    })
+  ],
 }

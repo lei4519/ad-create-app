@@ -1,0 +1,117 @@
+# Cursor AI Rules for ad-create-app
+
+## 项目概述
+这是一个 CLI 工具项目，用于快速创建小程序和 H5-Vue 项目模板。
+
+## 技术栈
+- TypeScript
+- Node.js
+- Commander.js (CLI 框架)
+- Inquirer.js (交互式命令行)
+- Handlebars (模板引擎)
+
+## 代码规范
+
+### TypeScript
+- 使用 TypeScript 进行开发
+- 编译目标在 tsconfig.json 中配置
+- 源码位于 `src/` 目录
+- 编译后代码输出到 `dist/` 目录
+
+### 命名约定
+- 文件名：使用 kebab-case (例如: `create-app.ts`)
+- 类名：使用 PascalCase
+- 函数和变量：使用 camelCase
+- 常量：使用 UPPER_SNAKE_CASE
+
+### 代码风格
+- 使用 2 空格缩进
+- 优先使用 const，其次 let，避免 var
+- 使用 async/await 而非 Promise.then()
+- 导入顺序：
+  1. Node.js 内置模块
+  2. 第三方依赖
+  3. 本地模块
+
+## 项目结构
+
+```
+src/
+  bin/          # CLI 入口文件
+  config/       # 配置文件
+  lib/          # 核心功能模块
+  utils/        # 工具函数
+  types/        # TypeScript 类型定义
+template/       # 项目模板
+  h5-vue/       # Vue H5 模板
+  wxapp/        # 微信小程序模板
+```
+
+## 开发指南
+
+### 添加新功能
+1. 在 `src/lib/` 中创建新模块
+2. 更新类型定义 `src/types/index.d.ts`
+3. 在 `src/bin/app.ts` 中注册命令
+4. 运行 `npm run build` 编译
+5. 使用 `npm link` 本地测试
+
+### 添加新模板
+1. 在 `template/` 下创建新模板目录
+2. 在 `src/lib/` 中创建对应的生成器
+3. 在 `src/config/index.ts` 中注册模板配置
+
+### 构建和发布
+- 开发模式：`npm run dev` (watch mode)
+- 构建：`npm run build`
+- 本地测试：`npm link`
+
+## Git 提交规范
+
+使用约定式提交（Conventional Commits）：
+
+- `feat:` 新功能
+- `fix:` 修复 bug
+- `docs:` 文档更新
+- `style:` 代码格式调整
+- `refactor:` 重构
+- `test:` 测试相关
+- `chore:` 构建/工具相关
+
+示例：
+```
+feat: 添加 React 模板支持
+fix: 修复小程序模板路径错误
+docs: 更新 README 安装说明
+```
+
+## CI/CD
+
+### GitHub Actions
+- **dev-deploy.yml**: Dev 环境自动部署
+  - 触发：推送到 `dev` 或 `cursor/dev-*` 分支
+  - 流程：安装依赖 → 构建 → 测试 → 归档产物
+  - 多版本测试：Node.js 14.x, 16.x, 18.x
+
+### 部署流程
+1. 推送代码到 dev 分支
+2. GitHub Actions 自动触发构建
+3. 构建产物上传为 Artifacts
+4. （可选）自动发布到 npm (dev tag)
+
+## 注意事项
+
+1. **模板更新**：修改 template 目录时，确保更新相应的生成器逻辑
+2. **依赖管理**：添加新依赖时，区分 dependencies 和 devDependencies
+3. **向后兼容**：CLI 工具更新时注意保持向后兼容性
+4. **错误处理**：CLI 命令应有清晰的错误提示和帮助信息
+
+## 测试
+- 本地测试：使用 `npm link` 后运行 `ad-create-app create test-project`
+- 确保在不同 Node.js 版本下测试（见 GitHub Actions）
+
+## 相关资源
+- [Commander.js 文档](https://github.com/tj/commander.js)
+- [Inquirer.js 文档](https://github.com/SBoudrias/Inquirer.js)
+- [Handlebars 文档](https://handlebarsjs.com/)
+- [Conventional Commits](https://www.conventionalcommits.org/)

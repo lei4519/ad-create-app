@@ -13,9 +13,21 @@ pnpm-debug.log*
 
 # Editor directories and files
 .idea
-.vscode
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# VSCode settings (keep workspace settings)
+# .vscode is now tracked for shared settings
+
+# Testing
+coverage/
+*.lcov
+.nyc_output/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/

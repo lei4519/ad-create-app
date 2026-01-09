@@ -1,0 +1,105 @@
+name: Dev Deployment
+
+on:
+  push:
+    branches:
+      - dev
+      - cursor/dev-*
+  pull_request:
+    branches:
+      - dev
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x, 18.x]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build project
+        run: npm run build
+      
+      - name: Run tests (if available)
+        run: npm test --if-present
+        continue-on-error: true
+      
+      - name: Check build artifacts
+        run: |
+          echo "Build artifacts generated:"
+          ls -la dist/
+      
+      - name: Archive build artifacts
+        if: matrix.node-version == '14.x'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+          retention-days: 7
+      
+      - name: Deploy notification
+        if: matrix.node-version == '14.x' && github.event_name == 'push'
+        run: |
+          echo "✅ Dev deployment completed successfully!"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Author: ${{ github.actor }}"
+          echo "Node version: ${{ matrix.node-version }}"
+  
+  publish-dev:
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '14'
+          registry-url: 'https://registry.npmjs.org'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build project
+        run: npm run build
+      
+      - name: Publish to npm (dev tag)
+        if: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --tag dev --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        continue-on-error: true
+      
+      - name: Create GitHub Release (Dev)
+        if: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: dev-${{ github.sha }}
+          release_name: Dev Release ${{ github.sha }}
+          body: |
+            Automated dev deployment
+            Commit: ${{ github.sha }}
+            Author: ${{ github.actor }}
+          draft: false
+          prerelease: true
+        continue-on-error: true

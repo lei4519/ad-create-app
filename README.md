@@ -1,9 +1,21 @@
 # 项目生成工具
 
+![Dev Deployment](https://img.shields.io/badge/deployment-GitHub%20Actions-blue)
+![Node Version](https://img.shields.io/badge/node-14.x%20%7C%2016.x%20%7C%2018.x-green)
+![TypeScript](https://img.shields.io/badge/TypeScript-4.x-blue)
+
+快速创建小程序和 H5-Vue 项目的 CLI 工具。
+
 ## 安装
 
+### 从 GitLab 安装（稳定版）
 ```shell
 cnpm i git+https://gitlab.leju.com/utils/ad-create-app.git --global
+```
+
+### 从 npm 安装（dev 版本）
+```shell
+npm install ad-create-app@dev --global
 ```
 
 ## 使用
@@ -55,3 +67,78 @@ npm run sass2wxss
 
 ### Vue模版（暂不支持）
 ### React模版（暂不支持）
+
+## 开发
+
+### 本地开发
+```shell
+# 克隆项目
+git clone <repository-url>
+
+# 安装依赖
+npm install
+
+# 开发模式（TypeScript watch）
+npm run dev
+
+# 构建
+npm run build
+
+# 本地测试
+npm link
+ad-create-app create test-project
+```
+
+### VSCode 开发环境
+项目已配置完整的 VSCode 开发环境：
+- 代码格式化和 ESLint 集成
+- TypeScript 智能提示
+- 调试配置（按 F5 启动）
+- 构建任务（Ctrl/Cmd+Shift+B）
+
+首次打开项目时，请安装推荐的扩展。
+
+## 部署
+
+项目使用 GitHub Actions 进行自动化部署。
+
+### 自动部署触发条件
+- 推送到 `dev` 分支
+- 推送到 `cursor/dev-*` 分支
+- 对 `dev` 分支的 Pull Request
+- 手动触发
+
+### 查看部署状态
+访问 GitHub Actions 页面查看构建和部署状态。
+
+📖 详细部署说明请查看 [DEPLOYMENT.md](./DEPLOYMENT.md)
+
+## 贡献
+
+### Git 提交规范
+本项目遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范：
+
+- `feat:` 新功能
+- `fix:` 修复 bug
+- `docs:` 文档更新
+- `style:` 代码格式调整
+- `refactor:` 重构
+- `test:` 测试相关
+- `chore:` 构建/工具相关
+
+示例：
+```
+feat: 添加 React 模板支持
+fix: 修复小程序模板路径错误
+docs: 更新 README 安装说明
+```
+
+## 相关链接
+
+- [enhance-wxapp 框架](https://gitlab.leju.com/librarys/enhance-weapp)
+- [Git Commit 规范](https://gitlab.leju.com/document/docs/blob/master/docs/git-commit.md)
+- [部署文档](./DEPLOYMENT.md)
+
+## 许可
+
+ISC License
